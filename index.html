@@ -1,261 +1,393 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<link rel="manifest" href="manifest.json">
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+  <meta name="theme-color" content="#111827" />
+  <meta
+    name="description"
+    content="Meu Bolso: controle financeiro pessoal por comando de voz."
+  />
+
   <title>Meu Bolso</title>
 
   <link rel="manifest" href="manifest.json" />
 
   <style>
     :root {
-      --bg: #f4f6fb;
+      --background: #f3f6fb;
       --card: #ffffff;
       --text: #172033;
-      --muted: #697386;
+      --muted: #667085;
+      --border: #e6eaf0;
       --primary: #2563eb;
       --primary-dark: #1d4ed8;
+      --purple: #7c3aed;
       --danger: #dc2626;
       --success: #16a34a;
-      --border: #e5e7eb;
-      --shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+      --dark: #111827;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 20px;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
     body {
       margin: 0;
-      background: var(--bg);
+      min-height: 100vh;
+      background: var(--background);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
-        "Segoe UI", sans-serif;
-      padding-bottom: 100px;
+        "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding-bottom: 96px;
+    }
+
+    button,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
     }
 
     header {
-      background: #0f172a;
-      color: white;
-      padding: max(24px, env(safe-area-inset-top)) 20px 26px;
+      background: linear-gradient(135deg, #111827, #1e293b);
+      color: #ffffff;
+      padding: max(24px, env(safe-area-inset-top)) 20px 28px;
       border-radius: 0 0 28px 28px;
     }
 
-    header h1 {
-      margin: 0;
-      font-size: 28px;
+    .header-content {
+      max-width: 800px;
+      margin: 0 auto;
     }
 
-    header p {
-      margin: 7px 0 0;
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: -0.7px;
+    }
+
+    .subtitle {
+      margin: 6px 0 0;
       color: #cbd5e1;
       font-size: 14px;
     }
 
-    main {
-      width: min(760px, 100%);
-      margin: auto;
-      padding: 18px;
-    }
-
-    .page { display: none; }
-    .page.active { display: block; }
-
-    .card {
-      background: var(--card);
-      border-radius: 18px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-      margin-bottom: 16px;
-    }
-
-    .summary {
+    .header-summary {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      margin-top: 16px;
+      margin-top: 20px;
     }
 
-    .summary-item {
-      background: rgba(255,255,255,0.12);
-      border-radius: 14px;
+    .header-summary-item {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 15px;
       padding: 14px;
     }
 
-    .summary-item small {
-      color: #cbd5e1;
+    .header-summary-item small {
       display: block;
       margin-bottom: 5px;
+      color: #cbd5e1;
+      font-size: 12px;
     }
 
-    .summary-item strong {
+    .header-summary-item strong {
       font-size: 18px;
+      letter-spacing: -0.3px;
     }
 
-    h2, h3 {
-      margin-top: 0;
+    main {
+      width: min(800px, 100%);
+      margin: 0 auto;
+      padding: 18px;
     }
 
-    h2 { font-size: 21px; }
-    h3 { font-size: 16px; }
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .card {
+      margin-bottom: 16px;
+      padding: 18px;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+      letter-spacing: -0.4px;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .hint {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
 
     .voice-button {
       width: 100%;
-      min-height: 150px;
+      min-height: 170px;
+      padding: 20px;
       border: 0;
-      border-radius: 22px;
-      color: white;
+      border-radius: 24px;
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      box-shadow: 0 14px 32px rgba(37, 99, 235, 0.3);
       font-size: 20px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #2563eb, #7c3aed);
-      box-shadow: 0 12px 28px rgba(37, 99, 235, .32);
-      cursor: pointer;
-      transition: transform .15s ease, opacity .15s ease;
+      font-weight: 800;
+      transition: transform 0.15s ease, opacity 0.15s ease;
     }
 
     .voice-button:active {
-      transform: scale(.98);
+      transform: scale(0.98);
     }
 
     .voice-button.recording {
-      background: linear-gradient(135deg, #dc2626, #ef4444);
-      animation: pulse 1.25s infinite;
+      background: linear-gradient(135deg, #dc2626, #f43f5e);
+      animation: pulse 1.2s ease-in-out infinite;
     }
 
     @keyframes pulse {
-      50% { opacity: .72; }
+      50% {
+        opacity: 0.75;
+        transform: scale(0.99);
+      }
     }
 
     .voice-icon {
       display: block;
-      font-size: 45px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+      font-size: 48px;
     }
 
-    .hint, .transcript {
+    .voice-state {
+      display: block;
+      margin-top: 7px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .transcript-box {
+      min-height: 48px;
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 13px;
+      background: #f8fafc;
       color: var(--muted);
       font-size: 14px;
+      font-style: italic;
       line-height: 1.45;
     }
 
-    .transcript {
-      min-height: 24px;
-      margin: 14px 0 0;
-      font-style: italic;
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 15px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: #ffffff;
+    }
+
+    .stat small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 7px;
+      font-size: 18px;
     }
 
     .chart-row {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin: 12px 0;
+      gap: 10px;
+      margin: 13px 0;
     }
 
     .chart-label {
-      width: 112px;
-      font-size: 13px;
+      width: 105px;
       overflow: hidden;
+      font-size: 13px;
       white-space: nowrap;
       text-overflow: ellipsis;
     }
 
-    .bar-bg {
+    .bar-background {
       flex: 1;
       height: 11px;
-      border-radius: 30px;
-      background: #e9edf5;
       overflow: hidden;
+      border-radius: 99px;
+      background: #e8edf5;
     }
 
     .bar {
       height: 100%;
       border-radius: inherit;
-      background: linear-gradient(90deg, #2563eb, #7c3aed);
+      background: linear-gradient(90deg, var(--primary), var(--purple));
+    }
+
+    .bar.payment-bar {
+      background: linear-gradient(90deg, #059669, #22c55e);
     }
 
     .chart-value {
-      min-width: 82px;
-      text-align: right;
+      width: 82px;
+      color: var(--text);
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 800;
+      text-align: right;
+    }
+
+    .analysis-item {
+      margin-top: 10px;
+      padding: 13px 14px;
+      border-left: 4px solid var(--purple);
+      border-radius: 8px;
+      background: #f5f3ff;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .empty {
+      margin: 0;
+      padding: 22px 8px;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .filter {
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      background: #ffffff;
+      color: var(--text);
+      font-size: 15px;
     }
 
     .transaction {
       display: flex;
-      gap: 12px;
       align-items: center;
-      padding: 13px 0;
+      gap: 11px;
+      padding: 14px 0;
       border-bottom: 1px solid var(--border);
     }
 
-    .transaction:last-child { border-bottom: 0; }
-
-    .transaction-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 13px;
-      background: #eff6ff;
-      display: grid;
-      place-items: center;
-      font-size: 20px;
-      flex: 0 0 auto;
+    .transaction:last-child {
+      border-bottom: 0;
     }
 
-    .transaction-info {
+    .transaction-icon {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 14px;
+      background: #eff6ff;
+      font-size: 20px;
+    }
+
+    .transaction-content {
       flex: 1;
       min-width: 0;
     }
 
-    .transaction-info strong,
-    .transaction-info small {
+    .transaction-content strong,
+    .transaction-content small {
       display: block;
       overflow: hidden;
-      text-overflow: ellipsis;
       white-space: nowrap;
+      text-overflow: ellipsis;
     }
 
-    .transaction-info small {
+    .transaction-content strong {
+      font-size: 14px;
+    }
+
+    .transaction-content small {
+      margin-top: 4px;
       color: var(--muted);
       font-size: 12px;
-      margin-top: 4px;
     }
 
     .transaction-value {
       color: var(--danger);
+      font-size: 14px;
       font-weight: 800;
       white-space: nowrap;
     }
 
     .delete-button {
-      border: 0;
-      color: var(--danger);
-      background: #fef2f2;
-      border-radius: 10px;
       padding: 8px;
-      cursor: pointer;
+      border: 0;
+      border-radius: 10px;
+      background: #fef2f2;
+      color: var(--danger);
+      font-size: 14px;
     }
 
     nav {
       position: fixed;
-      z-index: 5;
+      z-index: 10;
+      right: 0;
       bottom: 0;
       left: 0;
-      right: 0;
-      background: rgba(255,255,255,.95);
-      backdrop-filter: blur(14px);
-      border-top: 1px solid var(--border);
       display: flex;
       justify-content: center;
       padding: 9px 12px max(9px, env(safe-area-inset-bottom));
+      border-top: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
     }
 
     nav button {
+      min-width: 92px;
+      padding: 7px 14px;
       border: 0;
       background: transparent;
       color: var(--muted);
       font-size: 11px;
-      padding: 7px 18px;
-      cursor: pointer;
+    }
+
+    nav button span {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 20px;
     }
 
     nav button.active {
@@ -263,142 +395,105 @@
       font-weight: 800;
     }
 
-    nav span {
-      display: block;
-      font-size: 20px;
-      margin-bottom: 2px;
-    }
-
-    .empty {
-      color: var(--muted);
-      text-align: center;
-      padding: 24px 10px;
-    }
-
-    .filter {
-      width: 100%;
-      padding: 12px;
-      font-size: 15px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      margin-bottom: 12px;
-      background: white;
-    }
-
-    .modal-backdrop {
-      position: fixed;
-      z-index: 10;
-      inset: 0;
-      background: rgba(15, 23, 42, .58);
-      display: none;
-      align-items: end;
-    }
-
-    .modal-backdrop.show { display: flex; }
-
-    .modal {
-      width: 100%;
-      max-width: 760px;
-      margin: auto;
-      background: white;
-      padding: 24px 18px max(24px, env(safe-area-inset-bottom));
-      border-radius: 24px 24px 0 0;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 700;
-      margin: 14px 0 6px;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 13px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      font-size: 16px;
-      background: white;
-    }
-
-    .buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .button {
-      border: 0;
-      border-radius: 12px;
-      padding: 14px;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 800;
-    }
-
-    .button-primary {
-      color: white;
-      background: var(--primary);
-    }
-
-    .button-secondary {
-      color: var(--text);
-      background: #eef2f7;
-    }
-
-    .button-danger {
+    .settings-button,
+    .danger-button {
       width: 100%;
       margin-top: 10px;
-      color: white;
-      background: var(--danger);
-    }
-
-    .analysis {
-      border-left: 4px solid #7c3aed;
-      background: #f5f3ff;
-      padding: 13px;
-      border-radius: 8px;
+      padding: 14px;
+      border: 0;
+      border-radius: 13px;
+      font-weight: 800;
       font-size: 14px;
-      line-height: 1.45;
-      margin-top: 12px;
     }
 
     .settings-button {
-      width: 100%;
-      border: 0;
-      border-radius: 13px;
-      padding: 14px;
       background: #eff6ff;
-      color: #1d4ed8;
-      font-weight: 800;
-      margin-top: 10px;
-      cursor: pointer;
+      color: var(--primary-dark);
     }
 
-    .danger-zone {
-      margin-top: 26px;
-      border-top: 1px solid var(--border);
-      padding-top: 18px;
+    .danger-button {
+      background: #fef2f2;
+      color: var(--danger);
+    }
+
+    .divider {
+      height: 1px;
+      margin: 22px 0;
+      background: var(--border);
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 50;
+      right: 16px;
+      bottom: 90px;
+      left: 16px;
+      max-width: 700px;
+      margin: auto;
+      padding: 14px;
+      border-radius: 15px;
+      background: #111827;
+      color: #ffffff;
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.3);
+      font-size: 14px;
+      line-height: 1.4;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(18px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .undo-button {
+      margin-left: 8px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #93c5fd;
+      font-size: 14px;
+      font-weight: 800;
+      text-decoration: underline;
+    }
+
+    .permission-status {
+      display: inline-block;
+      margin-top: 11px;
+      padding: 7px 10px;
+      border-radius: 99px;
+      background: #ecfdf5;
+      color: #047857;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .permission-status.pending {
+      background: #fff7ed;
+      color: #c2410c;
     }
   </style>
 </head>
 
 <body>
   <header>
-    <h1>Meu Bolso</h1>
-    <p>Controle financeiro pessoal por voz</p>
+    <div class="header-content">
+      <h1>Meu Bolso</h1>
+      <p class="subtitle">Controle financeiro pessoal por voz</p>
 
-    <div class="summary">
-      <div class="summary-item">
-        <small>Gastos no mês</small>
-        <strong id="monthlyTotal">R$ 0,00</strong>
-      </div>
-      <div class="summary-item">
-        <small>Maior categoria</small>
-        <strong id="topCategory">—</strong>
+      <div class="header-summary">
+        <div class="header-summary-item">
+          <small>Gastos neste mês</small>
+          <strong id="monthlyTotal">R$ 0,00</strong>
+        </div>
+
+        <div class="header-summary-item">
+          <small>Maior categoria</small>
+          <strong id="topCategory">—</strong>
+        </div>
       </div>
     </div>
   </header>
@@ -406,18 +501,47 @@
   <main>
     <section id="dashboardPage" class="page active">
       <div class="card">
-        <h2>Registrar gasto</h2>
+        <h2>Registrar gasto por voz</h2>
 
-        <button id="voiceButton" class="voice-button">
+        <button id="voiceButton" class="voice-button" type="button">
           <span class="voice-icon">🎙️</span>
           Toque e fale seu gasto
+          <span class="voice-state">Ex.: “Gastei 58,35 no mercado com cartão black.”</span>
         </button>
 
-        <p class="hint">
-          Exemplo: “Gastei 58,35 reais no supermercado com o cartão black.”
-        </p>
+        <div id="microphoneStatus" class="permission-status pending">
+          Microfone será solicitado na primeira utilização
+        </div>
 
-        <p id="transcript" class="transcript"></p>
+        <div id="transcript" class="transcript-box">
+          Toque no microfone e diga o gasto completo.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Resumo do mês</h2>
+
+        <div class="stats-grid">
+          <div class="stat">
+            <small>Quantidade de gastos</small>
+            <strong id="expenseCount">0</strong>
+          </div>
+
+          <div class="stat">
+            <small>Média por gasto</small>
+            <strong id="averageExpense">R$ 0,00</strong>
+          </div>
+
+          <div class="stat">
+            <small>Maior gasto</small>
+            <strong id="largestExpense">R$ 0,00</strong>
+          </div>
+
+          <div class="stat">
+            <small>Forma mais usada</small>
+            <strong id="topPayment">—</strong>
+          </div>
+        </div>
       </div>
 
       <div class="card">
@@ -426,12 +550,12 @@
       </div>
 
       <div class="card">
-        <h2>Como você pagou</h2>
+        <h2>Como o dinheiro foi gasto</h2>
         <div id="paymentChart"></div>
       </div>
 
       <div class="card">
-        <h2>Análise do mês</h2>
+        <h2>Análise financeira</h2>
         <div id="analysis"></div>
       </div>
     </section>
@@ -442,10 +566,10 @@
 
         <select id="paymentFilter" class="filter">
           <option value="">Todas as formas de pagamento</option>
-          <option>Cartão Black</option>
-          <option>Cartão Luiza</option>
-          <option>Pix</option>
-          <option>Dinheiro</option>
+          <option value="Cartão Black">Cartão Black</option>
+          <option value="Cartão Luiza">Cartão Luiza</option>
+          <option value="Pix">Pix</option>
+          <option value="Dinheiro">Dinheiro</option>
         </select>
 
         <div id="transactionList"></div>
@@ -454,491 +578,483 @@
 
     <section id="settingsPage" class="page">
       <div class="card">
-        <h2>Dados e backup</h2>
+        <h2>Backup e dados</h2>
+
         <p class="hint">
-          Seus lançamentos ficam salvos somente neste aparelho. Exporte um backup regularmente.
+          Os lançamentos são salvos somente neste iPhone. Faça backups para
+          proteger seu histórico financeiro.
         </p>
 
-        <button id="exportButton" class="settings-button">
+        <button id="exportJsonButton" class="settings-button" type="button">
           Exportar backup em JSON
         </button>
 
-        <div class="danger-zone">
-          <h3>Apagar dados</h3>
-          <p class="hint">
-            Esta ação remove todos os gastos registrados neste iPhone.
-          </p>
-          <button id="clearButton" class="button button-danger">
-            Apagar todos os lançamentos
-          </button>
-        </div>
+        <button id="exportCsvButton" class="settings-button" type="button">
+          Exportar relatório em CSV
+        </button>
+
+        <div class="divider"></div>
+
+        <h3>Apagar todos os dados</h3>
+        <p class="hint">
+          Esta ação exclui permanentemente todos os lançamentos salvos neste aparelho.
+        </p>
+
+        <button id="clearButton" class="danger-button" type="button">
+          Apagar todos os lançamentos
+        </button>
       </div>
     </section>
   </main>
 
   <nav>
-    <button class="nav-button active" data-page="dashboardPage">
-      <span>📊</span>Dashboard
+    <button class="nav-button active" data-page="dashboardPage" type="button">
+      <span>📊</span>
+      Dashboard
     </button>
-    <button class="nav-button" data-page="transactionsPage">
-      <span>🧾</span>Lançamentos
+
+    <button class="nav-button" data-page="transactionsPage" type="button">
+      <span>🧾</span>
+      Lançamentos
     </button>
-    <button class="nav-button" data-page="settingsPage">
-      <span>⚙️</span>Ajustes
+
+    <button class="nav-button" data-page="settingsPage" type="button">
+      <span>⚙️</span>
+      Ajustes
     </button>
   </nav>
 
-  <div id="modalBackdrop" class="modal-backdrop">
-    <div class="modal">
-      <h2>Confirmar gasto</h2>
-      <p id="recognizedText" class="hint"></p>
-
-      <label for="expenseValue">Valor</label>
-      <input id="expenseValue" inputmode="decimal" placeholder="Ex.: 58,35" />
-
-      <label for="expenseDescription">Descrição</label>
-      <input id="expenseDescription" placeholder="Ex.: Supermercado" />
-
-      <label for="expenseCategory">Categoria</label>
-      <select id="expenseCategory">
-        <option>Alimentação</option>
-        <option>Mercado</option>
-        <option>Moradia</option>
-        <option>Transporte</option>
-        <option>Saúde</option>
-        <option>Educação</option>
-        <option>Lazer</option>
-        <option>Assinaturas</option>
-        <option>Compras</option>
-        <option>Contas e serviços</option>
-        <option>Viagens</option>
-        <option>Impostos</option>
-        <option>Outros</option>
-      </select>
-
-      <label for="expensePayment">Forma de pagamento</label>
-      <select id="expensePayment">
-        <option>Cartão Black</option>
-        <option>Cartão Luiza</option>
-        <option>Pix</option>
-        <option>Dinheiro</option>
-      </select>
-
-      <div class="buttons">
-        <button id="cancelButton" class="button button-secondary">Cancelar</button>
-        <button id="saveButton" class="button button-primary">Salvar gasto</button>
-      </div>
-    </div>
-  </div>
+  <div id="toast" class="toast"></div>
 
   <script>
-    const STORAGE_KEY = "meu_bolso_lancamentos";
+    const STORAGE_KEY = "meu_bolso_lancamentos_v2";
+    const MICROPHONE_KEY = "meu_bolso_microfone_solicitado";
+    let toastTimer = null;
+    let lastSavedExpenseId = null;
 
-    const categories = {
-      "Mercado": ["mercado", "supermercado", "feira", "atacadao", "atacadão"],
-      "Alimentação": ["restaurante", "almoco", "almoço", "lanche", "ifood", "cafe", "café", "pizza", "hamburguer", "hambúrguer"],
-      "Transporte": ["uber", "99", "gasolina", "combustivel", "combustível", "estacionamento", "onibus", "ônibus"],
-      "Saúde": ["farmacia", "farmácia", "medico", "médico", "consulta", "dentista", "academia"],
-      "Assinaturas": ["netflix", "spotify", "icloud", "amazon prime", "youtube premium"],
-      "Compras": ["roupa", "tenis", "tênis", "sapato", "loja", "shopping"],
-      "Moradia": ["aluguel", "condominio", "condomínio"],
-      "Contas e serviços": ["luz", "agua", "água", "internet", "telefone", "energia", "gas"],
-      "Educação": ["curso", "escola", "faculdade", "livro"],
-      "Lazer": ["cinema", "show", "bar", "viagem", "jogo"]
+    const categoryDictionary = {
+      Mercado: [
+        "mercado",
+        "supermercado",
+        "feira",
+        "sacolao",
+        "sacolão",
+        "atacadao",
+        "atacadão",
+        "assai",
+        "assaí",
+        "carrefour"
+      ],
+      Alimentação: [
+        "restaurante",
+        "almoco",
+        "almoço",
+        "lanche",
+        "ifood",
+        "i food",
+        "cafe",
+        "café",
+        "padaria",
+        "pizza",
+        "hamburguer",
+        "hambúrguer",
+        "jantar",
+        "marmita"
+      ],
+      Transporte: [
+        "uber",
+        "99",
+        "taxi",
+        "táxi",
+        "gasolina",
+        "combustivel",
+        "combustível",
+        "estacionamento",
+        "onibus",
+        "ônibus",
+        "metro",
+        "metrô",
+        "pedagio",
+        "pedágio"
+      ],
+      Saúde: [
+        "farmacia",
+        "farmácia",
+        "medico",
+        "médico",
+        "consulta",
+        "dentista",
+        "remedio",
+        "remédio",
+        "academia",
+        "exame",
+        "hospital"
+      ],
+      Assinaturas: [
+        "netflix",
+        "spotify",
+        "icloud",
+        "i cloud",
+        "amazon prime",
+        "youtube premium",
+        "disney",
+        "hbo",
+        "globoplay",
+        "globo play"
+      ],
+      Compras: [
+        "roupa",
+        "tenis",
+        "tênis",
+        "sapato",
+        "shopping",
+        "loja",
+        "camiseta",
+        "calca",
+        "calça",
+        "presente"
+      ],
+      Moradia: [
+        "aluguel",
+        "condominio",
+        "condomínio",
+        "imovel",
+        "imóvel",
+        "reforma"
+      ],
+      "Contas e serviços": [
+        "luz",
+        "agua",
+        "água",
+        "energia",
+        "internet",
+        "telefone",
+        "celular",
+        "gas",
+        "gás",
+        "conta de luz",
+        "conta de agua",
+        "conta de água"
+      ],
+      Educação: [
+        "curso",
+        "escola",
+        "faculdade",
+        "livro",
+        "material escolar"
+      ],
+      Lazer: [
+        "cinema",
+        "show",
+        "bar",
+        "balada",
+        "jogo",
+        "passeio"
+      ],
+      Viagens: [
+        "viagem",
+        "hotel",
+        "passagem",
+        "aereo",
+        "aéreo",
+        "aviao",
+        "avião"
+      ],
+      Impostos: [
+        "iptu",
+        "ipva",
+        "imposto",
+        "documento",
+        "multa"
+      ]
     };
 
-    const paymentTerms = {
-      "Cartão Black": ["cartao black", "cartão black", "black"],
-      "Cartão Luiza": ["cartao luiza", "cartão luiza", "luiza"],
-      "Pix": ["pix"],
-      "Dinheiro": ["dinheiro", "especie", "espécie"]
+    const paymentDictionary = {
+      "Cartão Black": [
+        "cartao black",
+        "cartão black",
+        "no black",
+        "com black",
+        "black"
+      ],
+      "Cartão Luiza": [
+        "cartao luiza",
+        "cartão luiza",
+        "no luiza",
+        "com luiza",
+        "luiza"
+      ],
+      Pix: [
+        "por pix",
+        "pelo pix",
+        "no pix",
+        "com pix",
+        "pix"
+      ],
+      Dinheiro: [
+        "em dinheiro",
+        "com dinheiro",
+        "no dinheiro",
+        "dinheiro",
+        "em especie",
+        "em espécie"
+      ]
     };
 
-    const currency = value =>
-      new Intl.NumberFormat("pt-BR", {
+    function formatCurrency(value) {
+      return new Intl.NumberFormat("pt-BR", {
         style: "currency",
         currency: "BRL"
-      }).format(value);
+      }).format(value || 0);
+    }
 
-    const escapeHtml = value =>
-      String(value).replace(/[&<>"']/g, char => ({
-        "&": "&",
-        "<": "<",
-        ">": ">",
-        '"': "&quot;",
-        "'": "&#039;"
-      }[char]));
+    function normalizeText(text) {
+      return String(text)
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^\w\s,.]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, character => {
+        const entities = {
+          "&": "&",
+          "<": "<",
+          ">": ">",
+          '"': "&quot;",
+          "'": "&#039;"
+        };
+
+        return entities[character];
+      });
+    }
+
+    function capitalize(text) {
+      if (!text) return "";
+
+      return text.charAt(0).toUpperCase() + text.slice(1);
+    }
 
     function getExpenses() {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      } catch {
+        return [];
+      }
     }
 
     function saveExpenses(expenses) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
     }
 
-    function normalize(text) {
-      return text
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
+    function numberWordsToValue(text) {
+      const units = {
+        zero: 0,
+        um: 1,
+        uma: 1,
+        dois: 2,
+        duas: 2,
+        tres: 3,
+        quatro: 4,
+        cinco: 5,
+        seis: 6,
+        sete: 7,
+        oito: 8,
+        nove: 9,
+        dez: 10,
+        onze: 11,
+        doze: 12,
+        treze: 13,
+        quatorze: 14,
+        quinze: 15,
+        dezesseis: 16,
+        dezessete: 17,
+        dezoito: 18,
+        dezenove: 19
+      };
+
+      const tens = {
+        vinte: 20,
+        trinta: 30,
+        quarenta: 40,
+        cinquenta: 50,
+        sessenta: 60,
+        setenta: 70,
+        oitenta: 80,
+        noventa: 90
+      };
+
+      const hundreds = {
+        cem: 100,
+        cento: 100,
+        duzentos: 200,
+        trezentos: 300,
+        quatrocentos: 400,
+        quinhentos: 500,
+        seiscentos: 600,
+        setecentos: 700,
+        oitocentos: 800,
+        novecentos: 900
+      };
+
+      const allowedWords = new Set([
+        ...Object.keys(units),
+        ...Object.keys(tens),
+        ...Object.keys(hundreds),
+        "mil",
+        "e"
+      ]);
+
+      const tokens = normalizeText(text)
+        .split(" ")
+        .filter(Boolean);
+
+      if (!tokens.length || tokens.some(token => !allowedWords.has(token))) {
+        return null;
+      }
+
+      let total = 0;
+      let current = 0;
+      let hasNumber = false;
+
+      for (const token of tokens) {
+        if (token === "e") continue;
+
+        if (units[token] !== undefined) {
+          current += units[token];
+          hasNumber = true;
+          continue;
+        }
+
+        if (tens[token] !== undefined) {
+          current += tens[token];
+          hasNumber = true;
+          continue;
+        }
+
+        if (hundreds[token] !== undefined) {
+          current += hundreds[token];
+          hasNumber = true;
+          continue;
+        }
+
+        if (token === "mil") {
+          total += (current || 1) * 1000;
+          current = 0;
+          hasNumber = true;
+        }
+      }
+
+      return hasNumber ? total + current : null;
+    }
+
+    function extractAmount(text) {
+      const normalized = normalizeText(text);
+
+      const decimalNumber = normalized.match(
+        /(?:r\$?\s*)?(\d{1,3}(?:\.\d{3})*|\d+)\s*[,\.]\s*(\d{1,2})\s*(?:reais?|real)?/
+      );
+
+      if (decimalNumber) {
+        const integerPart = decimalNumber[1].replace(/\./g, "");
+        const centsPart = decimalNumber[2].padEnd(2, "0");
+
+        return Number(`${integerPart}.${centsPart}`);
+      }
+
+      const numberAndCents = normalized.match(
+        /(\d+(?:\.\d{3})*)\s+e\s+(\d{1,2})\s*(?:reais?|real)/
+      );
+
+      if (numberAndCents) {
+        const integerPart = numberAndCents[1].replace(/\./g, "");
+        const centsPart = numberAndCents[2].padEnd(2, "0");
+
+        return Number(`${integerPart}.${centsPart}`);
+      }
+
+      const integerNumber = normalized.match(
+        /(?:r\$?\s*)?(\d+(?:\.\d{3})*)\s*(?:reais?|real)\b/
+      );
+
+      if (integerNumber) {
+        return Number(integerNumber[1].replace(/\./g, ""));
+      }
+
+      const wordsMatch = normalized.match(
+        /(?:gastei|paguei|comprei|passei|desembolsei)\s+(.+?)\s+(?:reais?|real)\b/
+      );
+
+      if (wordsMatch) {
+        const amountInWords = numberWordsToValue(wordsMatch[1]);
+
+        if (amountInWords !== null) {
+          const centsMatch = normalized.match(
+            /(?:reais?|real)\s+e\s+(.+?)\s+centavos?\b/
+          );
+
+          const cents =
+            centsMatch && numberWordsToValue(centsMatch[1]) !== null
+              ? numberWordsToValue(centsMatch[1])
+              : 0;
+
+          return amountInWords + cents / 100;
+        }
+      }
+
+      return 0;
+    }
+
+    function detectPayment(text) {
+      const normalized = normalizeText(text);
+
+      for (const [payment, terms] of Object.entries(paymentDictionary)) {
+        const found = terms.some(term =>
+          normalized.includes(normalizeText(term))
+        );
+
+        if (found) return payment;
+      }
+
+      return null;
     }
 
     function detectCategory(text) {
-      const normalized = normalize(text);
+      const normalized = normalizeText(text);
 
-      for (const [category, terms] of Object.entries(categories)) {
-        if (terms.some(term => normalized.includes(normalize(term)))) {
-          return category;
-        }
+      for (const [category, terms] of Object.entries(categoryDictionary)) {
+        const found = terms.some(term =>
+          normalized.includes(normalizeText(term))
+        );
+
+        if (found) return category;
       }
 
       return "Outros";
     }
 
-    function detectPayment(text) {
-      const normalized = normalize(text);
-
-      for (const [payment, terms] of Object.entries(paymentTerms)) {
-        if (terms.some(term => normalized.includes(normalize(term)))) {
-          return payment;
-        }
-      }
-
-      return "Cartão Black";
-    }
-
-    function extractValue(text) {
-      const normalized = text.replace(/\./g, "").replace(",", ".");
-      const match = normalized.match(/(\d+(?:\.\d{1,2})?)/);
-
-      return match ? Number(match[1]) : 0;
-    }
-
     function extractDescription(text) {
-      let description = text;
+      let description = normalizeText(text);
 
       description = description
-        .replace(/gastei/gi, "")
-        .replace(/paguei/gi, "")
-        .replace(/comprei/gi, "")
-        .replace(/fiz uma compra de/gi, "")
-        .replace(/\d+[,.]?\d*\s*(reais|real|r\$)?/gi, "")
-        .replace(/com o cartão black/gi, "")
-        .replace(/no cartão black/gi, "")
-        .replace(/com cartão black/gi, "")
-        .replace(/com o cartão luiza/gi, "")
-        .replace(/no cartão luiza/gi, "")
-        .replace(/com cartão luiza/gi, "")
-        .replace(/por pix/gi, "")
-        .replace(/com pix/gi, "")
-        .replace(/no pix/gi, "")
-        .replace(/em dinheiro/gi, "")
-        .replace(/com dinheiro/gi, "")
-        .replace(/\bno\b/gi, "")
-        .replace(/\bna\b/gi, "")
-        .replace(/\bcom\b/gi, "")
-        .replace(/\s+/g, " ")
-        .trim();
+        .replace(/^(gastei|paguei|comprei|passei|desembolsei)\s+/i, "")
 
-      return description
-        ? description.charAt(0).toUpperCase() + description.slice(1)
-        : "Gasto sem descrição";
-    }
+        .replace(
+          /(?:r\$?\s*)?\d{1,3}(?:\.\d{3})*\s*[,\.]\s*\d{1,2}\s*(?:reais?|real)?/i,
+          ""
+        )
+        .replace(
+          /\d+(?:\.\d{3})*\s+e\s+\d{1,2}\s*(?:reais?|real)/i,
+          ""
+        )
+        .replace(
+          /(?:r\$?\s*)?\d+(?:\.\d{3})*\s*(?:reais?|real)\b/i,
+          ""
+        )
 
-    function parseVoiceCommand(text) {
-      return {
-        value: extractValue(text),
-        description: extractDescription(text),
-        category: detectCategory(text),
-        payment: detectPayment(text)
-      };
-    }
+        .replace(
+          /(?:zero|um|uma|dois|duas|tres|quatro|cin
 
-    function openModal(data, text) {
-      document.getElementById("expenseValue").value =
-        data.value ? data.value.toFixed(2).replace(".", ",") : "";
-
-      document.getElementById("expenseDescription").value = data.description;
-      document.getElementById("expenseCategory").value = data.category;
-      document.getElementById("expensePayment").value = data.payment;
-      document.getElementById("recognizedText").textContent =
-        `Comando reconhecido: “${text}”`;
-
-      document.getElementById("modalBackdrop").classList.add("show");
-    }
-
-    function closeModal() {
-      document.getElementById("modalBackdrop").classList.remove("show");
-    }
-
-    function addExpense() {
-      const valueText = document.getElementById("expenseValue").value
-        .replace(".", "")
-        .replace(",", ".");
-
-      const value = Number(valueText);
-      const description = document.getElementById("expenseDescription").value.trim();
-      const category = document.getElementById("expenseCategory").value;
-      const payment = document.getElementById("expensePayment").value;
-
-      if (!value || value <= 0 || !description) {
-        alert("Confira o valor e a descrição antes de salvar.");
-        return;
-      }
-
-      const expenses = getExpenses();
-
-      expenses.unshift({
-        id: Date.now(),
-        value,
-        description,
-        category,
-        payment,
-        date: new Date().toISOString()
-      });
-
-      saveExpenses(expenses);
-      closeModal();
-      renderAll();
-    }
-
-    function isCurrentMonth(dateString) {
-      const date = new Date(dateString);
-      const now = new Date();
-
-      return (
-        date.getMonth() === now.getMonth() &&
-        date.getFullYear() === now.getFullYear()
-      );
-    }
-
-    function groupBy(expenses, property) {
-      return expenses.reduce((acc, item) => {
-        acc[item[property]] = (acc[item[property]] || 0) + item.value;
-        return acc;
-      }, {});
-    }
-
-    function renderBars(elementId, groupedData) {
-      const container = document.getElementById(elementId);
-      const entries = Object.entries(groupedData).sort((a, b) => b[1] - a[1]);
-
-      if (!entries.length) {
-        container.innerHTML = `<p class="empty">Ainda não existem gastos neste mês.</p>`;
-        return;
-      }
-
-      const max = entries[0][1];
-
-      container.innerHTML = entries.map(([name, value]) => `
-        <div class="chart-row">
-          <div class="chart-label">${escapeHtml(name)}</div>
-          <div class="bar-bg">
-            <div class="bar" style="width: ${(value / max) * 100}%"></div>
-          </div>
-          <div class="chart-value">${currency(value)}</div>
-        </div>
-      `).join("");
-    }
-
-    function renderDashboard() {
-      const expenses = getExpenses();
-      const monthExpenses = expenses.filter(item => isCurrentMonth(item.date));
-      const total = monthExpenses.reduce((sum, item) => sum + item.value, 0);
-      const byCategory = groupBy(monthExpenses, "category");
-      const byPayment = groupBy(monthExpenses, "payment");
-      const categoryEntries = Object.entries(byCategory).sort((a, b) => b[1] - a[1]);
-
-      document.getElementById("monthlyTotal").textContent = currency(total);
-      document.getElementById("topCategory").textContent =
-        categoryEntries.length ? categoryEntries[0][0] : "—";
-
-      renderBars("categoryChart", byCategory);
-      renderBars("paymentChart", byPayment);
-
-      const analysis = document.getElementById("analysis");
-
-      if (!monthExpenses.length) {
-        analysis.innerHTML = `<p class="empty">Registre seu primeiro gasto por voz para começar sua análise.</p>`;
-        return;
-      }
-
-      const [topName, topValue] = categoryEntries[0];
-      const percentage = total ? ((topValue / total) * 100).toFixed(0) : 0;
-      const largest = [...monthExpenses].sort((a, b) => b.value - a.value)[0];
-
-      analysis.innerHTML = `
-        <div class="analysis">
-          <strong>${escapeHtml(topName)}</strong> representa
-          <strong>${percentage}%</strong> dos seus gastos neste mês.
-        </div>
-        <div class="analysis">
-          Seu maior gasto foi <strong>${currency(largest.value)}</strong>
-          em <strong>${escapeHtml(largest.description)}</strong>,
-          pago com <strong>${escapeHtml(largest.payment)}</strong>.
-        </div>
-      `;
-    }
-
-    function paymentIcon(payment) {
-      const icons = {
-        "Cartão Black": "🖤",
-        "Cartão Luiza": "💳",
-        "Pix": "⚡",
-        "Dinheiro": "💵"
-      };
-
-      return icons[payment] || "💸";
-    }
-
-    function renderTransactions() {
-      const filter = document.getElementById("paymentFilter").value;
-      let expenses = getExpenses();
-
-      if (filter) {
-        expenses = expenses.filter(item => item.payment === filter);
-      }
-
-      const list = document.getElementById("transactionList");
-
-      if (!expenses.length) {
-        list.innerHTML = `<p class="empty">Nenhum lançamento encontrado.</p>`;
-        return;
-      }
-
-      list.innerHTML = expenses.map(item => {
-        const formattedDate = new Date(item.date).toLocaleDateString("pt-BR", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric"
-        });
-
-        return `
-          <div class="transaction">
-            <div class="transaction-icon">${paymentIcon(item.payment)}</div>
-            <div class="transaction-info">
-              <strong>${escapeHtml(item.description)}</strong>
-              <small>${escapeHtml(item.category)} · ${escapeHtml(item.payment)} · ${formattedDate}</small>
-            </div>
-            <div class="transaction-value">− ${currency(item.value)}</div>
-            <button class="delete-button" onclick="deleteExpense(${item.id})">✕</button>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function deleteExpense(id) {
-      const confirmed = confirm("Excluir este lançamento?");
-      if (!confirmed) return;
-
-      const expenses = getExpenses().filter(item => item.id !== id);
-      saveExpenses(expenses);
-      renderAll();
-    }
-
-    function renderAll() {
-      renderDashboard();
-      renderTransactions();
-    }
-
-    function exportBackup() {
-      const expenses = getExpenses();
-      const content = JSON.stringify(expenses, null, 2);
-      const blob = new Blob([content], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-
-      link.href = url;
-      link.download = `meu-bolso-backup-${new Date().toISOString().slice(0, 10)}.json`;
-      link.click();
-
-      URL.revokeObjectURL(url);
-    }
-
-    document.getElementById("voiceButton").addEventListener("click", () => {
-      const SpeechRecognition =
-        window.SpeechRecognition || window.webkitSpeechRecognition;
-
-      if (!SpeechRecognition) {
-        alert("O reconhecimento de voz não está disponível neste navegador.");
-        return;
-      }
-
-      const recognition = new SpeechRecognition();
-      recognition.lang = "pt-BR";
-      recognition.continuous = false;
-      recognition.interimResults = false;
-
-      const button = document.getElementById("voiceButton");
-      const transcript = document.getElementById("transcript");
-
-      recognition.start();
-      button.classList.add("recording");
-      button.innerHTML = `<span class="voice-icon">🔴</span>Ouvindo...`;
-      transcript.textContent = "Fale o seu gasto agora.";
-
-      recognition.onresult = event => {
-        const text = event.results[0][0].transcript;
-        transcript.textContent = `Você disse: “${text}”`;
-        openModal(parseVoiceCommand(text), text);
-      };
-
-      recognition.onerror = () => {
-        transcript.textContent = "Não foi possível entender sua fala. Tente novamente.";
-      };
-
-      recognition.onend = () => {
-        button.classList.remove("recording");
-        button.innerHTML = `<span class="voice-icon">🎙️</span>Toque e fale seu gasto`;
-      };
-    });
-
-    document.getElementById("saveButton").addEventListener("click", addExpense);
-    document.getElementById("cancelButton").addEventListener("click", closeModal);
-    document.getElementById("paymentFilter").addEventListener("change", renderTransactions);
-    document.getElementById("exportButton").addEventListener("click", exportBackup);
-
-    document.getElementById("clearButton").addEventListener("click", () => {
-      const confirmed = confirm(
-        "Tem certeza? Todos os seus lançamentos serão apagados permanentemente."
-      );
-
-      if (confirmed) {
-        localStorage.removeItem(STORAGE_KEY);
-        renderAll();
-      }
-    });
-
-    document.querySelectorAll(".nav-button").forEach(button => {
-      button.addEventListener("click", () => {
-        document.querySelectorAll(".nav-button").forEach(item =>
-          item.classList.remove("active")
-        );
-
-        document.querySelectorAll(".page").forEach(page =>
-          page.classList.remove("active")
-        );
-
-        button.classList.add("active");
-        document.getElementById(button.dataset.page).classList.add("active");
-      });
-    });
-
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("service-worker.js");
-      });
-    }
-
-    renderAll();
-  </script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('service-worker.js');
-    });
-  }
-</script>
-</body>
-</html>
