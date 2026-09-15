@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Meu Bolso</title>
+
+  <link rel="manifest" href="manifest.json" />
+
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --text: #172033;
+      --muted: #697386;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --border: #e5e7eb;
+      --shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+        "Segoe UI", sans-serif;
+      padding-bottom: 100px;
+    }
+
+    header {
+      background: #0f172a;
+      color: white;
+      padding: max(24px, env(safe-area-inset-top)) 20px 26px;
+      border-radius: 0 0 28px 28px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    header p {
+      margin: 7px 0 0;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+
+    main {
+      width: min(760px, 100%);
+      margin: auto;
+      padding: 18px;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .summary-item {
+      background: rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .summary-item small {
+      color: #cbd5e1;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .summary-item strong {
+      font-size: 18px;
+    }
+
+    h2, h3 {
+      margin-top: 0;
+    }
+
+    h2 { font-size: 21px; }
+    h3 { font-size: 16px; }
+
+    .voice-button {
+      width: 100%;
+      min-height: 150px;
+      border: 0;
+      border-radius: 22px;
+      color: white;
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      box-shadow: 0 12px 28px rgba(37, 99, 235, .32);
+      cursor: pointer;
+      transition: transform .15s ease, opacity .15s ease;
+    }
+
+    .voice-button:active {
+      transform: scale(.98);
+    }
+
+    .voice-button.recording {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      animation: pulse 1.25s infinite;
+    }
+
+    @keyframes pulse {
+      50% { opacity: .72; }
+    }
+
+    .voice-icon {
+      display: block;
+      font-size: 45px;
+      margin-bottom: 8px;
+    }
+
+    .hint, .transcript {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .transcript {
+      min-height: 24px;
+      margin: 14px 0 0;
+      font-style: italic;
+    }
+
+    .chart-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .chart-label {
+      width: 112px;
+      font-size: 13px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .bar-bg {
+      flex: 1;
+      height: 11px;
+      border-radius: 30px;
+      background: #e9edf5;
+      overflow: hidden;
+    }
+
+    .bar {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #2563eb, #7c3aed);
+    }
+
+    .chart-value {
+      min-width: 82px;
+      text-align: right;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .transaction {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .transaction:last-child { border-bottom: 0; }
+
+    .transaction-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      background: #eff6ff;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      flex: 0 0 auto;
+    }
+
+    .transaction-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .transaction-info strong,
+    .transaction-info small {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .transaction-info small {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .transaction-value {
+      color: var(--danger);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .delete-button {
+      border: 0;
+      color: var(--danger);
+      background: #fef2f2;
+      border-radius: 10px;
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    nav {
+      position: fixed;
+      z-index: 5;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255,255,255,.95);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: center;
+      padding: 9px 12px max(9px, env(safe-area-inset-bottom));
+    }
+
+    nav button {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      padding: 7px 18px;
+      cursor: pointer;
+    }
+
+    nav button.active {
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    nav span {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 2px;
+    }
+
+    .empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 24px 10px;
+    }
+
+    .filter {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      background: white;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      z-index: 10;
+      inset: 0;
+      background: rgba(15, 23, 42, .58);
+      display: none;
+      align-items: end;
+    }
+
+    .modal-backdrop.show { display: flex; }
+
+    .modal {
+      width: 100%;
+      max-width: 760px;
+      margin: auto;
+      background: white;
+      padding: 24px 18px max(24px, env(safe-area-inset-bottom));
+      border-radius: 24px 24px 0 0;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin: 14px 0 6px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 16px;
+      background: white;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .button {
+      border: 0;
+      border-radius: 12px;
+      padding: 14px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .button-primary {
+      color: white;
+      background: var(--primary);
+    }
+
+    .button-secondary {
+      color: var(--text);
+      background: #eef2f7;
+    }
+
+    .button-danger {
+      width: 100%;
+      margin-top: 10px;
+      color: white;
+      background: var(--danger);
+    }
+
+    .analysis {
+      border-left: 4px solid #7c3aed;
+      background: #f5f3ff;
+      padding: 13px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.45;
+      margin-top: 12px;
+    }
+
+    .settings-button {
+      width: 100%;
+      border: 0;
+      border-radius: 13px;
+      padding: 14px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-weight: 800;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .danger-zone {
+      margin-top: 26px;
+      border-top: 1px solid var(--border);
+      padding-top: 18px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Meu Bolso</h1>
+    <p>Controle financeiro pessoal por voz</p>
+
+    <div class="summary">
+      <div class="summary-item">
+        <small>Gastos no mês</small>
+        <strong id="monthlyTotal">R$ 0,00</strong>
+      </div>
+      <div class="summary-item">
+        <small>Maior categoria</small>
+        <strong id="topCategory">—</strong>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="dashboardPage" class="page active">
+      <div class="card">
+        <h2>Registrar gasto</h2>
+
+        <button id="voiceButton" class="voice-button">
+          <span class="voice-icon">🎙️</span>
+          Toque e fale seu gasto
+        </button>
+
+        <p class="hint">
+          Exemplo: “Gastei 58,35 reais no supermercado com o cartão black.”
+        </p>
+
+        <p id="transcript" class="transcript"></p>
+      </div>
+
+      <div class="card">
+        <h2>Gastos por categoria</h2>
+        <div id="categoryChart"></div>
+      </div>
+
+      <div class="card">
+        <h2>Como você pagou</h2>
+        <div id="paymentChart"></div>
+      </div>
+
+      <div class="card">
+        <h2>Análise do mês</h2>
+        <div id="analysis"></div>
+      </div>
+    </section>
+
+    <section id="transactionsPage" class="page">
+      <div class="card">
+        <h2>Lançamentos</h2>
+
+        <select id="paymentFilter" class="filter">
+          <option value="">Todas as formas de pagamento</option>
+          <option>Cartão Black</option>
+          <option>Cartão Luiza</option>
+          <option>Pix</option>
+          <option>Dinheiro</option>
+        </select>
+
+        <div id="transactionList"></div>
+      </div>
+    </section>
+
+    <section id="settingsPage" class="page">
+      <div class="card">
+        <h2>Dados e backup</h2>
+        <p class="hint">
+          Seus lançamentos ficam salvos somente neste aparelho. Exporte um backup regularmente.
+        </p>
+
+        <button id="exportButton" class="settings-button">
+          Exportar backup em JSON
+        </button>
+
+        <div class="danger-zone">
+          <h3>Apagar dados</h3>
+          <p class="hint">
+            Esta ação remove todos os gastos registrados neste iPhone.
+          </p>
+          <button id="clearButton" class="button button-danger">
+            Apagar todos os lançamentos
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav>
+    <button class="nav-button active" data-page="dashboardPage">
+      <span>📊</span>Dashboard
+    </button>
+    <button class="nav-button" data-page="transactionsPage">
+      <span>🧾</span>Lançamentos
+    </button>
+    <button class="nav-button" data-page="settingsPage">
+      <span>⚙️</span>Ajustes
+    </button>
+  </nav>
+
+  <div id="modalBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <h2>Confirmar gasto</h2>
+      <p id="recognizedText" class="hint"></p>
+
+      <label for="expenseValue">Valor</label>
+      <input id="expenseValue" inputmode="decimal" placeholder="Ex.: 58,35" />
+
+      <label for="expenseDescription">Descrição</label>
+      <input id="expenseDescription" placeholder="Ex.: Supermercado" />
+
+      <label for="expenseCategory">Categoria</label>
+      <select id="expenseCategory">
+        <option>Alimentação</option>
+        <option>Mercado</option>
+        <option>Moradia</option>
+        <option>Transporte</option>
+        <option>Saúde</option>
+        <option>Educação</option>
+        <option>Lazer</option>
+        <option>Assinaturas</option>
+        <option>Compras</option>
+        <option>Contas e serviços</option>
+        <option>Viagens</option>
+        <option>Impostos</option>
+        <option>Outros</option>
+      </select>
+
+      <label for="expensePayment">Forma de pagamento</label>
+      <select id="expensePayment">
+        <option>Cartão Black</option>
+        <option>Cartão Luiza</option>
+        <option>Pix</option>
+        <option>Dinheiro</option>
+      </select>
+
+      <div class="buttons">
+        <button id="cancelButton" class="button button-secondary">Cancelar</button>
+        <button id="saveButton" class="button button-primary">Salvar gasto</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "meu_bolso_lancamentos";
+
+    const categories = {
+      "Mercado": ["mercado", "supermercado", "feira", "atacadao", "atacadão"],
+      "Alimentação": ["restaurante", "almoco", "almoço", "lanche", "ifood", "cafe", "café", "pizza", "hamburguer", "hambúrguer"],
+      "Transporte": ["uber", "99", "gasolina", "combustivel", "combustível", "estacionamento", "onibus", "ônibus"],
+      "Saúde": ["farmacia", "farmácia", "medico", "médico", "consulta", "dentista", "academia"],
+      "Assinaturas": ["netflix", "spotify", "icloud", "amazon prime", "youtube premium"],
+      "Compras": ["roupa", "tenis", "tênis", "sapato", "loja", "shopping"],
+      "Moradia": ["aluguel", "condominio", "condomínio"],
+      "Contas e serviços": ["luz", "agua", "água", "internet", "telefone", "energia", "gas"],
+      "Educação": ["curso", "escola", "faculdade", "livro"],
+      "Lazer": ["cinema", "show", "bar", "viagem", "jogo"]
+    };
+
+    const paymentTerms = {
+      "Cartão Black": ["cartao black", "cartão black", "black"],
+      "Cartão Luiza": ["cartao luiza", "cartão luiza", "luiza"],
+      "Pix": ["pix"],
+      "Dinheiro": ["dinheiro", "especie", "espécie"]
+    };
+
+    const currency = value =>
+      new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      }).format(value);
+
+    const escapeHtml = value =>
+      String(value).replace(/[&<>"']/g, char => ({
+        "&": "&",
+        "<": "<",
+        ">": ">",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
+
+    function getExpenses() {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    }
+
+    function saveExpenses(expenses) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
+    }
+
+    function normalize(text) {
+      return text
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function detectCategory(text) {
+      const normalized = normalize(text);
+
+      for (const [category, terms] of Object.entries(categories)) {
+        if (terms.some(term => normalized.includes(normalize(term)))) {
+          return category;
+        }
+      }
+
+      return "Outros";
+    }
+
+    function detectPayment(text) {
+      const normalized = normalize(text);
+
+      for (const [payment, terms] of Object.entries(paymentTerms)) {
+        if (terms.some(term => normalized.includes(normalize(term)))) {
+          return payment;
+        }
+      }
+
+      return "Cartão Black";
+    }
+
+    function extractValue(text) {
+      const normalized = text.replace(/\./g, "").replace(",", ".");
+      const match = normalized.match(/(\d+(?:\.\d{1,2})?)/);
+
+      return match ? Number(match[1]) : 0;
+    }
+
+    function extractDescription(text) {
+      let description = text;
+
+      description = description
+        .replace(/gastei/gi, "")
+        .replace(/paguei/gi, "")
+        .replace(/comprei/gi, "")
+        .replace(/fiz uma compra de/gi, "")
+        .replace(/\d+[,.]?\d*\s*(reais|real|r\$)?/gi, "")
+        .replace(/com o cartão black/gi, "")
+        .replace(/no cartão black/gi, "")
+        .replace(/com cartão black/gi, "")
+        .replace(/com o cartão luiza/gi, "")
+        .replace(/no cartão luiza/gi, "")
+        .replace(/com cartão luiza/gi, "")
+        .replace(/por pix/gi, "")
+        .replace(/com pix/gi, "")
+        .replace(/no pix/gi, "")
+        .replace(/em dinheiro/gi, "")
+        .replace(/com dinheiro/gi, "")
+        .replace(/\bno\b/gi, "")
+        .replace(/\bna\b/gi, "")
+        .replace(/\bcom\b/gi, "")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      return description
+        ? description.charAt(0).toUpperCase() + description.slice(1)
+        : "Gasto sem descrição";
+    }
+
+    function parseVoiceCommand(text) {
+      return {
+        value: extractValue(text),
+        description: extractDescription(text),
+        category: detectCategory(text),
+        payment: detectPayment(text)
+      };
+    }
+
+    function openModal(data, text) {
+      document.getElementById("expenseValue").value =
+        data.value ? data.value.toFixed(2).replace(".", ",") : "";
+
+      document.getElementById("expenseDescription").value = data.description;
+      document.getElementById("expenseCategory").value = data.category;
+      document.getElementById("expensePayment").value = data.payment;
+      document.getElementById("recognizedText").textContent =
+        `Comando reconhecido: “${text}”`;
+
+      document.getElementById("modalBackdrop").classList.add("show");
+    }
+
+    function closeModal() {
+      document.getElementById("modalBackdrop").classList.remove("show");
+    }
+
+    function addExpense() {
+      const valueText = document.getElementById("expenseValue").value
+        .replace(".", "")
+        .replace(",", ".");
+
+      const value = Number(valueText);
+      const description = document.getElementById("expenseDescription").value.trim();
+      const category = document.getElementById("expenseCategory").value;
+      const payment = document.getElementById("expensePayment").value;
+
+      if (!value || value <= 0 || !description) {
+        alert("Confira o valor e a descrição antes de salvar.");
+        return;
+      }
+
+      const expenses = getExpenses();
+
+      expenses.unshift({
+        id: Date.now(),
+        value,
+        description,
+        category,
+        payment,
+        date: new Date().toISOString()
+      });
+
+      saveExpenses(expenses);
+      closeModal();
+      renderAll();
+    }
+
+    function isCurrentMonth(dateString) {
+      const date = new Date(dateString);
+      const now = new Date();
+
+      return (
+        date.getMonth() === now.getMonth() &&
+        date.getFullYear() === now.getFullYear()
+      );
+    }
+
+    function groupBy(expenses, property) {
+      return expenses.reduce((acc, item) => {
+        acc[item[property]] = (acc[item[property]] || 0) + item.value;
+        return acc;
+      }, {});
+    }
+
+    function renderBars(elementId, groupedData) {
+      const container = document.getElementById(elementId);
+      const entries = Object.entries(groupedData).sort((a, b) => b[1] - a[1]);
+
+      if (!entries.length) {
+        container.innerHTML = `<p class="empty">Ainda não existem gastos neste mês.</p>`;
+        return;
+      }
+
+      const max = entries[0][1];
+
+      container.innerHTML = entries.map(([name, value]) => `
+        <div class="chart-row">
+          <div class="chart-label">${escapeHtml(name)}</div>
+          <div class="bar-bg">
+            <div class="bar" style="width: ${(value / max) * 100}%"></div>
+          </div>
+          <div class="chart-value">${currency(value)}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderDashboard() {
+      const expenses = getExpenses();
+      const monthExpenses = expenses.filter(item => isCurrentMonth(item.date));
+      const total = monthExpenses.reduce((sum, item) => sum + item.value, 0);
+      const byCategory = groupBy(monthExpenses, "category");
+      const byPayment = groupBy(monthExpenses, "payment");
+      const categoryEntries = Object.entries(byCategory).sort((a, b) => b[1] - a[1]);
+
+      document.getElementById("monthlyTotal").textContent = currency(total);
+      document.getElementById("topCategory").textContent =
+        categoryEntries.length ? categoryEntries[0][0] : "—";
+
+      renderBars("categoryChart", byCategory);
+      renderBars("paymentChart", byPayment);
+
+      const analysis = document.getElementById("analysis");
+
+      if (!monthExpenses.length) {
+        analysis.innerHTML = `<p class="empty">Registre seu primeiro gasto por voz para começar sua análise.</p>`;
+        return;
+      }
+
+      const [topName, topValue] = categoryEntries[0];
+      const percentage = total ? ((topValue / total) * 100).toFixed(0) : 0;
+      const largest = [...monthExpenses].sort((a, b) => b.value - a.value)[0];
+
+      analysis.innerHTML = `
+        <div class="analysis">
+          <strong>${escapeHtml(topName)}</strong> representa
+          <strong>${percentage}%</strong> dos seus gastos neste mês.
+        </div>
+        <div class="analysis">
+          Seu maior gasto foi <strong>${currency(largest.value)}</strong>
+          em <strong>${escapeHtml(largest.description)}</strong>,
+          pago com <strong>${escapeHtml(largest.payment)}</strong>.
+        </div>
+      `;
+    }
+
+    function paymentIcon(payment) {
+      const icons = {
+        "Cartão Black": "🖤",
+        "Cartão Luiza": "💳",
+        "Pix": "⚡",
+        "Dinheiro": "💵"
+      };
+
+      return icons[payment] || "💸";
+    }
+
+    function renderTransactions() {
+      const filter = document.getElementById("paymentFilter").value;
+      let expenses = getExpenses();
+
+      if (filter) {
+        expenses = expenses.filter(item => item.payment === filter);
+      }
+
+      const list = document.getElementById("transactionList");
+
+      if (!expenses.length) {
+        list.innerHTML = `<p class="empty">Nenhum lançamento encontrado.</p>`;
+        return;
+      }
+
+      list.innerHTML = expenses.map(item => {
+        const formattedDate = new Date(item.date).toLocaleDateString("pt-BR", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric"
+        });
+
+        return `
+          <div class="transaction">
+            <div class="transaction-icon">${paymentIcon(item.payment)}</div>
+            <div class="transaction-info">
+              <strong>${escapeHtml(item.description)}</strong>
+              <small>${escapeHtml(item.category)} · ${escapeHtml(item.payment)} · ${formattedDate}</small>
+            </div>
+            <div class="transaction-value">− ${currency(item.value)}</div>
+            <button class="delete-button" onclick="deleteExpense(${item.id})">✕</button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function deleteExpense(id) {
+      const confirmed = confirm("Excluir este lançamento?");
+      if (!confirmed) return;
+
+      const expenses = getExpenses().filter(item => item.id !== id);
+      saveExpenses(expenses);
+      renderAll();
+    }
+
+    function renderAll() {
+      renderDashboard();
+      renderTransactions();
+    }
+
+    function exportBackup() {
+      const expenses = getExpenses();
+      const content = JSON.stringify(expenses, null, 2);
+      const blob = new Blob([content], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = `meu-bolso-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      link.click();
+
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("voiceButton").addEventListener("click", () => {
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      if (!SpeechRecognition) {
+        alert("O reconhecimento de voz não está disponível neste navegador.");
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = "pt-BR";
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      const button = document.getElementById("voiceButton");
+      const transcript = document.getElementById("transcript");
+
+      recognition.start();
+      button.classList.add("recording");
+      button.innerHTML = `<span class="voice-icon">🔴</span>Ouvindo...`;
+      transcript.textContent = "Fale o seu gasto agora.";
+
+      recognition.onresult = event => {
+        const text = event.results[0][0].transcript;
+        transcript.textContent = `Você disse: “${text}”`;
+        openModal(parseVoiceCommand(text), text);
+      };
+
+      recognition.onerror = () => {
+        transcript.textContent = "Não foi possível entender sua fala. Tente novamente.";
+      };
+
+      recognition.onend = () => {
+        button.classList.remove("recording");
+        button.innerHTML = `<span class="voice-icon">🎙️</span>Toque e fale seu gasto`;
+      };
+    });
+
+    document.getElementById("saveButton").addEventListener("click", addExpense);
+    document.getElementById("cancelButton").addEventListener("click", closeModal);
+    document.getElementById("paymentFilter").addEventListener("change", renderTransactions);
+    document.getElementById("exportButton").addEventListener("click", exportBackup);
+
+    document.getElementById("clearButton").addEventListener("click", () => {
+      const confirmed = confirm(
+        "Tem certeza? Todos os seus lançamentos serão apagados permanentemente."
+      );
+
+      if (confirmed) {
+        localStorage.removeItem(STORAGE_KEY);
+        renderAll();
+      }
+    });
+
+    document.querySelectorAll(".nav-button").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".nav-button").forEach(item =>
+          item.classList.remove("active")
+        );
+
+        document.querySelectorAll(".page").forEach(page =>
+          page.classList.remove("active")
+        );
+
+        button.classList.add("active");
+        document.getElementById(button.dataset.page).classList.add("active");
+      });
+    });
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("service-worker.js");
+      });
+    }
+
+    renderAll();
+  </script>
+</body>
+</html>
