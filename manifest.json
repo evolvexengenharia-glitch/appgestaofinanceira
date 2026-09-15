@@ -1,10 +1,21 @@
 {
-  "name": "Meu Bolso",
-  "short_name": "Meu Bolso",
-  "description": "Controle financeiro pessoal por voz",
-  "start_url": "./",
+  "name": "Fabridata Finanças Pessoais",
+  "short_name": "Fabridata",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f4f6fb",
-  "theme_color": "#0f172a",
-  "lang": "pt-BR"
+  "orientation": "portrait",
+  "background_color": "#0e1630",
+  "theme_color": "#0e1630",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
